@@ -1,0 +1,20 @@
+{
+	"name": "ssigwart/lambda-php",
+	"license": "MIT",
+	"homepage": "https://github.com/ssigwart/lambda-php",
+	"description": "PHP runtime for AWS lambda.",
+	"keywords": ["aws", "lambda"],
+	"authors": [
+		{
+			"name": "Stephen Sigwart"
+		}
+	],
+	"autoload": {
+		"psr-4": { "ssigwart\\LambdaRuntime\\": "src/" }
+	},
+	"readme": "README.md",
+	"require": {
+		"php": ">=7.0.0",
+		"guzzlehttp/guzzle": "^7.2"
+	}
+}

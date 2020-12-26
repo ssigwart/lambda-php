@@ -1,0 +1,66 @@
+#!/opt/bin/php
+<?php
+
+namespace LambdaRuntimeBootstrap;
+
+// Load composer
+require(__DIR__ . '/vendor/autoload.php');
+
+use Throwable;
+use RuntimeException;
+
+use ssigwart\LambdaRuntime\LambdaRuntime;
+use ssigwart\LambdaRuntime\LambdaHandlerInterface;
+
+/** Lambda runtime bootstrap */
+class RuntimeBootstrap
+{
+	/** @var LambdaHandlerInterface|null Handler */
+	private static $handler = null;
+
+	/**
+	 * Constructor
+	 */
+	public function __construct()
+	{
+		$runtime = new LambdaRuntime('http://' . $_ENV['AWS_LAMBDA_RUNTIME_API'] . '/2018-06-01/runtime');
+		$handlerName = $_ENV['_HANDLER'];
+		$handlerCodeDir = $_ENV['LAMBDA_TASK_ROOT'] . '/handler/' . $handlerName . '/';
+
+		try
+		{
+			// Load bootstrap class
+			if (!include($handlerCodeDir. 'bootstrap.php'))
+			{
+				$runtime->sendInitializationErrorMessage('HandlerLoadException', 'Failed to load handler.');
+				exit(1);
+			}
+
+			// Make sure we have the handler
+			if (self::$handler === null)
+			{
+				$runtime->sendInitializationErrorMessage('HandlerLoadException', 'Handle bootstrap failed to call \LambdaRuntimeBootstrap\RuntimeBootstrap::setHandler().');
+				exit(1);
+			}
+
+			// Start runtime
+			$runtime->start(self::$handler);
+		} catch (Throwable $e) {
+			$runtime->sendInitializationErrorMessage(get_class($e), 'Failed to load handler "' . $handlerName . '". Exception: ' . $e->getMessage());
+			exit(1);
+		}
+	}
+
+	/**
+	 * Set handler
+	 *
+	 * @param LambdaHandlerInterface|null $handler Handler
+	 */
+	public static function setHandler(LambdaHandlerInterface $handler): void
+	{
+		self::$handler = $handler;
+	}
+}
+
+// Load
+new RuntimeBootstrap();

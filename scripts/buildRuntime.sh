@@ -10,7 +10,7 @@ docker cp dockerCompile.sh lambda-php-build:.
 docker exec -ti lambda-php-build ./dockerCompile.sh
 
 # Set up artifacts directory
-if [ ! -d .artifacts ]; then
+if [ ! -d artifacts ]; then
 	mkdir artifacts
 fi
 
